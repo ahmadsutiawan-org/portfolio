@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ darkMode: true }" :class="{ 'dark': darkMode }">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONEASZ | Creative Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a',
+                        primary: '#2563eb',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html.lenis {
+            height: auto;
+        }
+
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+
+        .lenis.lenis-smooth [data-lenis-prevent] {
+            overscroll-behavior: contain;
+        }
+
+        .lenis.lenis-stopped {
+            overflow: hidden;
+        }
+
+        canvas#bg-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            filter: blur(80px);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-white dark:bg-dark text-slate-900 dark:text-white transition-colors duration-500 font-sans selection:bg-primary selection:text-white">
+
+    <canvas id="bg-3d"></canvas>
+
+    <div id="custom-cursor"
+        class="fixed w-4 h-4 bg-primary rounded-full pointer-events-none z-[999] mix-blend-difference hidden md:block">
+    </div>
+
+    {% include 'navbar.html' %}
+
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        const lenis = new Lenis();
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        gsap.set("#custom-cursor", { xPercent: -50, yPercent: -50 });
+        window.addEventListener("mousemove", e => {
+            gsap.to("#custom-cursor", { x: e.clientX, y: e.clientY, duration: 0.5, ease: "power3.out" });
+        });
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#bg-3d'), alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+        const material = new THREE.MeshNormalMaterial();
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+        camera.position.z = 30;
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            mesh.rotation.x += 0.005;
+            mesh.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate3D();
+    </script>
+</body>
+
+</html>
