@@ -62,10 +62,11 @@
         class="fixed w-4 h-4 bg-primary rounded-full pointer-events-none z-[999] mix-blend-difference hidden md:block">
     </div>
 
-    {% include 'navbar.html' %}
+    {% include 'components/navbar.html' %}
 
     <main id="main-content">
-        {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}
     </main>
 
     <script>
